@@ -35,7 +35,7 @@ func main() {
 
 func startPolling(c v1alpha.PublicAPIClient, done chan bool) {
 	for {
-		res, err := getRunningPods(c)
+		res, err := getPods(c)
 		if err != nil {
 			panic(err)
 		}
@@ -47,6 +47,7 @@ func startPolling(c v1alpha.PublicAPIClient, done chan bool) {
 				if pod.State == v1alpha.PodState_POD_STATE_RUNNING {
 					// Map the pod.
 					pods[pod.Id] = pod
+					fmt.Println("Registered Pod: " + pod.Id)
 					// TODO: register it.
 				}
 				continue
@@ -54,6 +55,7 @@ func startPolling(c v1alpha.PublicAPIClient, done chan bool) {
 
 			if pod.State == v1alpha.PodState_POD_STATE_EXITED {
 				// TODO: Pod stopped. Deregister it.
+				fmt.Println("Deregistered Pod: " + pod.Id)
 				delete(pods, pod.Id)
 			}
 		}
@@ -62,13 +64,23 @@ func startPolling(c v1alpha.PublicAPIClient, done chan bool) {
 	done <- true
 }
 
-func getRunningPods(c v1alpha.PublicAPIClient) (*v1alpha.ListPodsResponse, error) {
+func getPods(c v1alpha.PublicAPIClient) (*v1alpha.ListPodsResponse, error) {
 	req := &v1alpha.ListPodsRequest{
 		// Specify the request: Fetch and print only running pods and their details.
 		Detail: true,
 		Filters: []*v1alpha.PodFilter{
 			{
-				States: []v1alpha.PodState{v1alpha.PodState_POD_STATE_RUNNING},
+				States: []v1alpha.PodState{
+					v1alpha.PodState_POD_STATE_ABORTED_PREPARE,
+					v1alpha.PodState_POD_STATE_DELETING,
+					v1alpha.PodState_POD_STATE_EMBRYO,
+					v1alpha.PodState_POD_STATE_EXITED,
+					v1alpha.PodState_POD_STATE_GARBAGE,
+					v1alpha.PodState_POD_STATE_PREPARED,
+					v1alpha.PodState_POD_STATE_PREPARING,
+					v1alpha.PodState_POD_STATE_RUNNING,
+					v1alpha.PodState_POD_STATE_UNDEFINED,
+				},
 			},
 		},
 	}
