@@ -11,7 +11,6 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/coreos/rkt/api/v1alpha"
-	"github.com/davecgh/go-spew/spew"
 )
 
 var delay *int
@@ -19,7 +18,7 @@ var pods = make(map[string]*v1alpha.Pod)
 
 func main() {
 	delay = flag.Int("d", 100, "The polling interval (in milliseconds).")
-	flag.Parsed()
+	flag.Parse()
 	conn, err := grpc.Dial("localhost:15441", grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
@@ -47,7 +46,6 @@ func initPods(c v1alpha.PublicAPIClient) error {
 		}
 		pods[p.Id] = p
 	}
-	spew.Dump(pods)
 	return nil
 }
 
