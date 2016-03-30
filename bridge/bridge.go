@@ -2,10 +2,10 @@ package bridge
 
 import "errors"
 
-var registeredFactories = make(map[string]RegistryFactory)
+var registeredFactories = make(map[string]AdapterFactory)
 
-// RegistryFactory specifies a constructor for factories.
-type RegistryFactory interface {
+// AdapterFactory specifies a constructor for factories.
+type AdapterFactory interface {
 	New() (RegistryAdapter, error)
 }
 
@@ -24,7 +24,7 @@ type Service struct {
 }
 
 // Register registers a new RegistryFactory for use.
-func Register(rf RegistryFactory, name string) error {
+func Register(rf AdapterFactory, name string) error {
 	if _, ok := registeredFactories[name]; ok {
 		// Should be unique (either "consul", "etcd", etc.)
 		return errors.New("A registry with the name \"" + name + "\" was already registered.")
@@ -34,7 +34,7 @@ func Register(rf RegistryFactory, name string) error {
 }
 
 // LookUp returns a RegistryFactory registered with a given name.
-func LookUp(name string) (RegistryFactory, bool) {
-	runtime, ok := registeredFactories[name]
-	return runtime, ok
+func LookUp(name string) (AdapterFactory, bool) {
+	registry, ok := registeredFactories[name]
+	return registry, ok
 }
