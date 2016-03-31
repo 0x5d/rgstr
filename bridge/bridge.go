@@ -6,7 +6,9 @@ var registeredFactories = make(map[string]AdapterFactory)
 
 // AdapterFactory specifies a constructor for factories.
 type AdapterFactory interface {
-	New() (RegistryAdapter, error)
+	// New builds a RegistryAdapter, which should be a client of a registry listening on the given
+	// address.
+	New(address string) (RegistryAdapter, error)
 }
 
 // RegistryAdapter specifies the contract a container runtime adapter (docker, rkt) should follow.
@@ -31,6 +33,13 @@ func Register(rf AdapterFactory, name string) error {
 	}
 	registeredFactories[name] = rf
 	return nil
+}
+
+// Deregister deregisters an existent factory. (Mostly here for testing.)
+func Deregister(name string) bool {
+	_, ok := registeredFactories[name]
+	delete(registeredFactories, name)
+	return ok
 }
 
 // LookUp returns a RegistryFactory registered with a given name.
