@@ -1,5 +1,8 @@
+[![Build Status](https://travis-ci.org/castillobg/rgstr.svg?branch=master)](https://travis-ci.org/castillobg/rgstr)
+
 # rgstr
-**rgstr** (_re-gis-ter_) automatically registers and de-registers `rkt` pods on [Consul](), [etcd]().
+**rgstr** (_rĕjˈĭ-stər_) automatically registers and de-registers `rkt`
+(_rŏkˈĭt_) pods on [Consul](https://www.consul.io/), [etcd](https://coreos.com/etcd/).
 
 ## Please Note:
 This project relies heavily on
