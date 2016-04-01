@@ -1,4 +1,4 @@
-package registries_test
+package runtimes_test
 
 import (
 	. "github.com/onsi/ginkgo"
@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestRegistries(t *testing.T) {
+func TestRuntimes(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Registries Suite")
+	RunSpecs(t, "Runtimes Suite")
 }

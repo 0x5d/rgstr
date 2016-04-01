@@ -4,14 +4,14 @@ import "errors"
 
 var registeredFactories = make(map[string]AdapterFactory)
 
-// AdapterFactory specifies a constructor for factories.
+// AdapterFactory specifies a constructor for RegistryAdapter factories.
 type AdapterFactory interface {
 	// New builds a RegistryAdapter, which should be a client of a registry listening on the given
 	// address.
 	New(address string) (RegistryAdapter, error)
 }
 
-// RegistryAdapter specifies the contract a container runtime adapter (docker, rkt) should follow.
+// RegistryAdapter specifies the contract a registry adapter (consul, etcd) should follow.
 type RegistryAdapter interface {
 	Register(service *Service) error
 	Deregister(service *Service) error
@@ -25,7 +25,7 @@ type Service struct {
 	Port int
 }
 
-// Register registers a new RegistryFactory for use.
+// Register registers an AdapterFactory for use.
 func Register(rf AdapterFactory, name string) error {
 	if _, ok := registeredFactories[name]; ok {
 		// Should be unique (either "consul", "etcd", etc.)
@@ -42,7 +42,7 @@ func Deregister(name string) bool {
 	return ok
 }
 
-// LookUp returns a RegistryFactory registered with a given name.
+// LookUp returns an AdapterFactory registered with a given name.
 func LookUp(name string) (AdapterFactory, bool) {
 	registry, ok := registeredFactories[name]
 	return registry, ok
