@@ -1,7 +1,7 @@
-package bridge_test
+package registries_test
 
 import (
-	. "github.com/castillobg/rgstr/bridge"
+	. "github.com/castillobg/rgstr/registries"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

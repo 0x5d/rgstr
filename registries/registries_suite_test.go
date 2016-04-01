@@ -1,4 +1,4 @@
-package bridge_test
+package registries_test
 
 import (
 	. "github.com/onsi/ginkgo"

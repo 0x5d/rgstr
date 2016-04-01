@@ -1,4 +1,4 @@
-package bridge
+package registries
 
 import "errors"
 
