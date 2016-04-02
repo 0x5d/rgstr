@@ -15,7 +15,7 @@ type AdapterFactory interface {
 
 // RuntimeAdapter specifies the contract a container runtime adapter should follow.
 type RuntimeAdapter interface {
-	Listen(errs chan error)
+	Listen(chan error)
 }
 
 // Register registers an AdapterFactory for use.
