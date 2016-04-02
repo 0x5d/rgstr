@@ -10,11 +10,12 @@ var registeredFactories = make(map[string]AdapterFactory)
 
 // AdapterFactory specifies a constructor for RuntimeAdapter factories.
 type AdapterFactory interface {
-	New(registry registries.RegistryAdapter) (RuntimeAdapter, error)
+	New(address string, registry *registries.RegistryAdapter) (RuntimeAdapter, error)
 }
 
 // RuntimeAdapter specifies the contract a container runtime adapter should follow.
 type RuntimeAdapter interface {
+	Listen(chan error)
 }
 
 // Register registers an AdapterFactory for use.
