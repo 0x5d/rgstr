@@ -17,7 +17,7 @@ var pods = make(map[string]*v1alpha.Pod)
 
 func main() {
 	address := flag.String("a", "localhost:15441", "The `address` where rkt's API service is listening.")
-	consulAddress := flag.String("ra", "localhost:8500", "The address where Consul is listening.")
+	consulAddress := flag.String("ra", "localhost:8500", "The `registry address`.")
 	flag.Parse()
 
 	registryName := "consul"
