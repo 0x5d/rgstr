@@ -3,7 +3,6 @@ package rkt
 import (
 	"fmt"
 	"os"
-	"sync"
 	"time"
 
 	"golang.org/x/net/context"
@@ -39,7 +38,7 @@ func (*Factory) New(address string, registry *registries.RegistryAdapter) (runti
 }
 
 // Listen triggers event listening.
-func (adapter *Adapter) Listen(errs chan error, wg ...sync.WaitGroup) {
+func (adapter *Adapter) Listen(errs chan error) {
 	conn, err := grpc.Dial(adapter.Address, grpc.WithInsecure())
 	if err != nil {
 		fmt.Println(err)
@@ -49,9 +48,6 @@ func (adapter *Adapter) Listen(errs chan error, wg ...sync.WaitGroup) {
 	defer conn.Close()
 
 	errs <- startPolling(c)
-	if len(wg) > 0 {
-		wg[0].Done()
-	}
 }
 
 func startPolling(c v1alpha.PublicAPIClient) error {

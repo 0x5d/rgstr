@@ -6,8 +6,10 @@ import (
 	"os"
 
 	"github.com/castillobg/rgstr/registries"
+	// A blank import so that the consul AdapterFactory registers itself.
 	_ "github.com/castillobg/rgstr/registries/consul"
 	"github.com/castillobg/rgstr/runtimes"
+	// A blank import so that the rkt AdapterFactory registers itself.
 	_ "github.com/castillobg/rgstr/runtimes/rkt"
 	"github.com/coreos/rkt/api/v1alpha"
 )
@@ -43,6 +45,7 @@ func main() {
 		fmt.Printf("Error initializing runtime client for \"%s\": %s", runtime, err.Error())
 		os.Exit(1)
 	}
+
 	errs := make(chan error)
 	go runtime.Listen(errs)
 	fmt.Printf("rgstr is listening for changes in %s...\n", runtimeName)

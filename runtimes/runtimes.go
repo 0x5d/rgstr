@@ -2,7 +2,6 @@ package runtimes
 
 import (
 	"errors"
-	"sync"
 
 	"github.com/castillobg/rgstr/registries"
 )
@@ -16,7 +15,7 @@ type AdapterFactory interface {
 
 // RuntimeAdapter specifies the contract a container runtime adapter should follow.
 type RuntimeAdapter interface {
-	Listen(errs chan error, wg ...sync.WaitGroup)
+	Listen(errs chan error)
 }
 
 // Register registers an AdapterFactory for use.
