@@ -1,13 +1,13 @@
-package registries_test
+package runtimes_test
 
 import (
-	. "github.com/castillobg/rgstr/registries"
+	. "github.com/castillobg/rgstr/runtimes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("registries", func() {
+var _ = Describe("runtimes", func() {
 	Describe(".Register()", func() {
 		Context("When the name is unique", func() {
 			It("Registers the new AdapterFactory", func() {
@@ -23,7 +23,7 @@ var _ = Describe("registries", func() {
 				var factory AdapterFactory
 				name := "factory1"
 				Expect(Register(factory, name)).To(Succeed())
-				// Trying to register the same factory twice results in an error.
+				// Trying to register the same runtime twice results in an error.
 				Expect(Register(factory, name)).To(HaveOccurred())
 				Deregister(name)
 			})
