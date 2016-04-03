@@ -12,11 +12,7 @@ import (
 	"github.com/castillobg/rgstr/runtimes"
 	// A blank import so that the rkt AdapterFactory registers itself.
 	_ "github.com/castillobg/rgstr/runtimes/rkt"
-	"github.com/coreos/rkt/api/v1alpha"
 )
-
-var delay *int
-var pods = make(map[string]*v1alpha.Pod)
 
 func main() {
 	runtimeAddr := flag.String("a", "localhost:15441", "The `address` where rkt's API service is listening.")
