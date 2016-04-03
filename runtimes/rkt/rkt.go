@@ -2,7 +2,6 @@ package rkt
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"golang.org/x/net/context"
@@ -39,13 +38,16 @@ func (*Factory) New(address string, registry *registries.RegistryAdapter) (runti
 
 // Listen triggers event listening.
 func (adapter *Adapter) Listen(errs chan error) {
-	conn, err := grpc.Dial(adapter.Address, grpc.WithInsecure())
+	conn, err := grpc.Dial(
+		adapter.Address,
+		grpc.WithInsecure(),
+		grpc.WithTimeout(time.Duration(10)*time.Second),
+	)
+	defer conn.Close()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		errs <- err
 	}
 	c := v1alpha.NewPublicAPIClient(conn)
-	defer conn.Close()
 
 	errs <- startPolling(c)
 }

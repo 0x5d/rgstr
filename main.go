@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/castillobg/rgstr/registries"
@@ -49,7 +50,5 @@ func main() {
 	errs := make(chan error)
 	go runtime.Listen(errs)
 	fmt.Printf("rgstr is listening for changes in %s...\n", runtimeName)
-	for err = range errs {
-		fmt.Println(err)
-	}
+	log.Fatal(<-errs)
 }
