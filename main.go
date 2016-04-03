@@ -18,29 +18,29 @@ var delay *int
 var pods = make(map[string]*v1alpha.Pod)
 
 func main() {
-	address := flag.String("a", "localhost:15441", "The `address` where rkt's API service is listening.")
-	consulAddress := flag.String("ra", "localhost:8500", "The `registry address`.")
+	runtimeAddr := flag.String("a", "localhost:15441", "The `address` where rkt's API service is listening.")
+	registryAddr := flag.String("ra", "localhost:8500", "The `registry address`.")
+	registryName := flag.String("rn", "consul", "The `registry name`.")
 	flag.Parse()
 
-	registryName := "consul"
-	registryFactory, ok := registries.LookUp(registryName)
+	registryFactory, ok := registries.LookUp(*registryName)
 	if !ok {
-		fmt.Printf("No registry with name \"%s\" found.\n", registryName)
+		fmt.Printf("No registry with name \"%s\" found.\n", *registryName)
 		os.Exit(1)
 	}
-	registry, err := registryFactory.New(*consulAddress)
+	registry, err := registryFactory.New(*registryAddr)
 	if err != nil {
-		fmt.Printf("Error initializing registry client for \"%s\": %s\n", registryName, err.Error())
+		fmt.Printf("Error initializing registry client for \"%s\": %s\n", *registryName, err.Error())
 		os.Exit(1)
 	}
 
 	runtimeName := "rkt"
 	runtimeFactory, ok := runtimes.LookUp(runtimeName)
 	if !ok {
-		fmt.Printf("No runtime with name \"%s\" found.\n", registryName)
+		fmt.Printf("No runtime with name \"%s\" found.\n", runtimeName)
 		os.Exit(1)
 	}
-	runtime, err := runtimeFactory.New(*address, &registry)
+	runtime, err := runtimeFactory.New(*runtimeAddr, &registry)
 	if err != nil {
 		fmt.Printf("Error initializing runtime client for \"%s\": %s", runtime, err.Error())
 		os.Exit(1)
