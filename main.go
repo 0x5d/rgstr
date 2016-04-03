@@ -4,12 +4,13 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"time"
 
-	"golang.org/x/net/context"
-
-	"google.golang.org/grpc"
-
+	"github.com/castillobg/rgstr/registries"
+	// A blank import so that the consul AdapterFactory registers itself.
+	_ "github.com/castillobg/rgstr/registries/consul"
+	"github.com/castillobg/rgstr/runtimes"
+	// A blank import so that the rkt AdapterFactory registers itself.
+	_ "github.com/castillobg/rgstr/runtimes/rkt"
 	"github.com/coreos/rkt/api/v1alpha"
 )
 
@@ -17,72 +18,38 @@ var delay *int
 var pods = make(map[string]*v1alpha.Pod)
 
 func main() {
-	address := flag.String("a", "localhost:15441", "The address where rkt's API service is listening.")
-	delay = flag.Int("d", 100, "The polling interval (in milliseconds).")
+	runtimeAddr := flag.String("a", "localhost:15441", "The `address` where rkt's API service is listening.")
+	registryAddr := flag.String("ra", "localhost:8500", "The `registry address`.")
+	registryName := flag.String("rn", "consul", "The `registry name`.")
 	flag.Parse()
-	conn, err := grpc.Dial(*address, grpc.WithInsecure())
-	if err != nil {
-		fmt.Println(err)
+
+	registryFactory, ok := registries.LookUp(*registryName)
+	if !ok {
+		fmt.Printf("No registry with name \"%s\" found.\n", *registryName)
 		os.Exit(1)
 	}
-	c := v1alpha.NewPublicAPIClient(conn)
-	defer conn.Close()
-
-	done := make(chan bool)
-	go startPolling(c, done)
-	<-done
-}
-
-func startPolling(c v1alpha.PublicAPIClient, done chan bool) {
-	for {
-		res, err := getPods(c)
-		if err != nil {
-			panic(err)
-		}
-
-		for _, pod := range res.Pods {
-			_, ok := pods[pod.Id]
-			if !ok {
-				// Check if it's running.
-				if pod.State == v1alpha.PodState_POD_STATE_RUNNING {
-					// Map the pod.
-					pods[pod.Id] = pod
-					fmt.Println("Registered Pod: " + pod.Id)
-					// TODO: register it.
-				}
-				continue
-			}
-
-			if pod.State == v1alpha.PodState_POD_STATE_EXITED {
-				// TODO: Pod stopped. Deregister it.
-				fmt.Println("Deregistered Pod: " + pod.Id)
-				delete(pods, pod.Id)
-			}
-		}
-		time.Sleep(time.Duration(*delay) * time.Millisecond)
+	registry, err := registryFactory.New(*registryAddr)
+	if err != nil {
+		fmt.Printf("Error initializing registry client for \"%s\": %s\n", *registryName, err.Error())
+		os.Exit(1)
 	}
-	done <- true
-}
 
-func getPods(c v1alpha.PublicAPIClient) (*v1alpha.ListPodsResponse, error) {
-	req := &v1alpha.ListPodsRequest{
-		// Specify the request: Fetch and print only running pods and their details.
-		Detail: true,
-		Filters: []*v1alpha.PodFilter{
-			{
-				States: []v1alpha.PodState{
-					v1alpha.PodState_POD_STATE_ABORTED_PREPARE,
-					v1alpha.PodState_POD_STATE_DELETING,
-					v1alpha.PodState_POD_STATE_EMBRYO,
-					v1alpha.PodState_POD_STATE_EXITED,
-					v1alpha.PodState_POD_STATE_GARBAGE,
-					v1alpha.PodState_POD_STATE_PREPARED,
-					v1alpha.PodState_POD_STATE_PREPARING,
-					v1alpha.PodState_POD_STATE_RUNNING,
-					v1alpha.PodState_POD_STATE_UNDEFINED,
-				},
-			},
-		},
+	runtimeName := "rkt"
+	runtimeFactory, ok := runtimes.LookUp(runtimeName)
+	if !ok {
+		fmt.Printf("No runtime with name \"%s\" found.\n", runtimeName)
+		os.Exit(1)
 	}
-	return c.ListPods(context.Background(), req)
+	runtime, err := runtimeFactory.New(*runtimeAddr, &registry)
+	if err != nil {
+		fmt.Printf("Error initializing runtime client for \"%s\": %s", runtime, err.Error())
+		os.Exit(1)
+	}
+
+	errs := make(chan error)
+	go runtime.Listen(errs)
+	fmt.Printf("rgstr is listening for changes in %s...\n", runtimeName)
+	for err = range errs {
+		fmt.Println(err)
+	}
 }
