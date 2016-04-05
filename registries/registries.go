@@ -22,7 +22,7 @@ type Service struct {
 	ID   string
 	Name string
 	IP   string
-	Port int
+	Port uint
 }
 
 // Register registers an AdapterFactory for use.

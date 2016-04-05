@@ -37,7 +37,7 @@ func main() {
 		fmt.Printf("No runtime with name \"%s\" found.\n", runtimeName)
 		os.Exit(1)
 	}
-	runtime, err := runtimeFactory.New(*runtimeAddr, &registry)
+	runtime, err := runtimeFactory.New(*runtimeAddr, registry)
 	if err != nil {
 		fmt.Printf("Error initializing runtime client for \"%s\": %s", runtime, err.Error())
 		os.Exit(1)
