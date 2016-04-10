@@ -1,68 +1,84 @@
 package registries_test
 
 import (
-	. "github.com/castillobg/rgstr/registries"
+	"testing"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"github.com/castillobg/rgstr/registries"
 )
 
-var _ = Describe("registries", func() {
-	Describe(".Register()", func() {
-		Context("When the name is unique", func() {
-			It("Registers the new AdapterFactory", func() {
-				var factory AdapterFactory
-				name := "factory1"
-				Expect(Register(factory, name)).To(Succeed())
-				// Deregister it to avoid conflicts with other tests.
-				Deregister(name)
-			})
-		})
-		Context("When the name is a dup", func() {
-			It("Returns an error", func() {
-				var factory AdapterFactory
-				name := "factory1"
-				Expect(Register(factory, name)).To(Succeed())
-				// Trying to register the same factory twice results in an error.
-				Expect(Register(factory, name)).To(HaveOccurred())
-				Deregister(name)
-			})
-		})
-	})
+func TestRegisterUnique(t *testing.T) {
+	var factory registries.AdapterFactory
+	name := "factory1"
 
-	Describe(".Deregister()", func() {
-		Context("When a given AdapterFactory exists", func() {
-			It("Returns true.", func() {
-				var factory AdapterFactory
-				name := "factory1"
-				Expect(Register(factory, name)).To(Succeed())
-				Expect(Deregister(name)).To(BeTrue())
-			})
-		})
-		Context("When a given AdapterFactory doesn't exist", func() {
-			It("Returns false.", func() {
-				Expect(Deregister("inexistent")).To(BeFalse())
-			})
-		})
-	})
+	// When a factory's name is unique, there shouldn't be a problem.
+	err := registries.Register(factory, name)
+	// To avoid conflicts with other tests, deregister it.
+	defer registries.Deregister(name)
+	if err != nil {
+		t.Errorf("err should be nil if the factory name is unique. Instead got: %v", err)
+	}
+}
 
-	Describe(".LookUp()", func() {
-		Context("When a given service exists", func() {
-			It("Returns the service and true", func() {
-				var factory AdapterFactory
-				name := "factory1"
-				Expect(Register(factory, name)).To(Succeed())
-				_, ok := LookUp(name)
-				Expect(ok).To(BeTrue())
-				// Deregister it to avoid conflicts with other tests.
-				Deregister(name)
-			})
-		})
-		Context("When a given service doesn't exist", func() {
-			It("Returns the nil and false", func() {
-				_, ok := LookUp("inexistent")
-				Expect(ok).To(BeFalse())
-			})
-		})
-	})
-})
+func TestRegisterDup(t *testing.T) {
+	var factory registries.AdapterFactory
+	name := "factory1"
+
+	// When a factory's name is unique, there shouldn't be a problem.
+	err := registries.Register(factory, name)
+	// To avoid conflicts with other tests, deregister it.
+	defer registries.Deregister(name)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	// When a factory's name is a duplicate, client should get an error.
+	err = registries.Register(factory, name)
+	if err == nil {
+		t.Error("err shouldn't be nil when registering a duplicate factory.")
+	}
+}
+
+func TestDeregisterExistent(t *testing.T) {
+	var factory registries.AdapterFactory
+	name := "factory1"
+
+	// The factory's name is unique, there shouldn't be a problem.
+	err := registries.Register(factory, name)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	ok := registries.Deregister(name)
+	if !ok {
+		t.Error("ok shouldn't be false if the factory existed.")
+	}
+}
+
+func TestDeregisterInexistent(t *testing.T) {
+	name := "factory1"
+	ok := registries.Deregister(name)
+	if ok {
+		t.Error("ok should be false if the factory deidn't exist.")
+	}
+}
+
+func TestLookUpExistent(t *testing.T) {
+	var factory registries.AdapterFactory
+	name := "factory1"
+
+	// The factory's name is unique, there shouldn't be a problem.
+	err := registries.Register(factory, name)
+	defer registries.Deregister(name)
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+	_, ok := registries.LookUp(name)
+	if !ok {
+		t.Error("ok should be true when a factory exists.")
+	}
+}
+
+func TestLookUpInexistent(t *testing.T) {
+	_, ok := registries.LookUp("inexistent")
+	if ok {
+		t.Error("ok should be false when a factory doesn't exist.")
+	}
+}
