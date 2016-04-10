@@ -1,7 +1,7 @@
 package consul
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/castillobg/rgstr/registries"
 	"github.com/hashicorp/consul/api"
@@ -33,10 +33,18 @@ func (*Factory) New(address string) (registries.RegistryAdapter, error) {
 
 // Register registers a new service on Consul.
 func (adapter *Adapter) Register(service *registries.Service) error {
-	return errors.New("Not yet implemented.")
+	fmt.Println("Registering service", service.ID, "on Consul.")
+	consulService := &api.AgentServiceRegistration{
+		ID:      service.ID,
+		Address: service.IP,
+		Port:    int(service.Port),
+		Name:    service.Name,
+	}
+	return adapter.client.Agent().ServiceRegister(consulService)
 }
 
 // Deregister deregisters a service from Consul.
 func (adapter *Adapter) Deregister(service *registries.Service) error {
-	return errors.New("Not yet implemented.")
+	fmt.Println("Deregistering service", service.ID, "from Consul.")
+	return adapter.client.Agent().ServiceDeregister(service.ID)
 }
