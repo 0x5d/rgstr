@@ -48,3 +48,26 @@ func (adapter *Adapter) Deregister(service *registries.Service) error {
 	fmt.Println("Deregistering service", service.ID, "from Consul.")
 	return adapter.client.Agent().ServiceDeregister(service.ID)
 }
+
+// Services returns the services registered in the Consul agent.
+func (adapter *Adapter) Services() ([]*registries.Service, error) {
+	services := []*registries.Service{}
+	servicesMap, err := adapter.client.Agent().Services()
+	if err != nil {
+		return nil, err
+	}
+	for _, consulService := range servicesMap {
+		services = append(services, toGenericService(consulService))
+	}
+	return services, nil
+}
+
+func toGenericService(consulService *api.AgentService) *registries.Service {
+	service := &registries.Service{
+		ID:   consulService.ID,
+		IP:   consulService.Address,
+		Port: uint(consulService.Port),
+		Name: consulService.Service,
+	}
+	return service
+}

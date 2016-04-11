@@ -70,12 +70,12 @@ func startPolling(adapter *Adapter, c v1alpha.PublicAPIClient) error {
 					pods[pod.Id] = pod
 					services, err := getPodServices(pod)
 					if err != nil {
-						// TODO: handle error.
+						return err
 					}
 					for _, service := range services {
 						err = adapter.Registry.Register(service)
 						if err != nil {
-							// TODO: Handle error.
+							return err
 						}
 					}
 				}
@@ -86,12 +86,13 @@ func startPolling(adapter *Adapter, c v1alpha.PublicAPIClient) error {
 				services, err := getPodServices(pods[pod.Id])
 				delete(pods, pod.Id)
 				if err != nil {
-					// TODO: handle error.
+					return err
 				}
+				// Deregister every pod service from the registry.
 				for _, service := range services {
 					err = adapter.Registry.Deregister(service)
 					if err != nil {
-						// TODO: Handle error.
+						return err
 					}
 				}
 			}

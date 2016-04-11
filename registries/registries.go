@@ -15,6 +15,7 @@ type AdapterFactory interface {
 type RegistryAdapter interface {
 	Register(service *Service) error
 	Deregister(service *Service) error
+	Services() ([]*Service, error)
 }
 
 // Service represents a service.
