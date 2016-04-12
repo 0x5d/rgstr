@@ -1,68 +1,65 @@
 package runtimes_test
 
 import (
-	. "github.com/castillobg/rgstr/runtimes"
+	"testing"
 
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
+	"github.com/castillobg/rgstr/runtimes"
+	"github.com/stretchr/testify/assert"
 )
 
-var _ = Describe("runtimes", func() {
-	Describe(".Register()", func() {
-		Context("When the name is unique", func() {
-			It("Registers the new AdapterFactory", func() {
-				var factory AdapterFactory
-				name := "factory1"
-				Expect(Register(factory, name)).To(Succeed())
-				// Deregister it to avoid conflicts with other tests.
-				Deregister(name)
-			})
-		})
-		Context("When the name is a dup", func() {
-			It("Returns an error", func() {
-				var factory AdapterFactory
-				name := "factory1"
-				Expect(Register(factory, name)).To(Succeed())
-				// Trying to register the same runtime twice results in an error.
-				Expect(Register(factory, name)).To(HaveOccurred())
-				Deregister(name)
-			})
-		})
-	})
+func TestRegisterUnique(t *testing.T) {
+	var factory runtimes.AdapterFactory
+	name := "factory1"
 
-	Describe(".Deregister()", func() {
-		Context("When a given AdapterFactory exists", func() {
-			It("Returns true.", func() {
-				var factory AdapterFactory
-				name := "factory1"
-				Expect(Register(factory, name)).To(Succeed())
-				Expect(Deregister(name)).To(BeTrue())
-			})
-		})
-		Context("When a given AdapterFactory doesn't exist", func() {
-			It("Returns false.", func() {
-				Expect(Deregister("inexistent")).To(BeFalse())
-			})
-		})
-	})
+	// When a factory's name is unique, there shouldn't be a problem.
+	err := runtimes.Register(factory, name)
+	// To avoid conflicts with other tests, deregister it.
+	defer runtimes.Deregister(name)
+	assert.NoError(t, err, "err should be nil if the factory name is unique. Instead got: %v", err)
+}
 
-	Describe(".LookUp()", func() {
-		Context("When a given service exists", func() {
-			It("Returns the service and true", func() {
-				var factory AdapterFactory
-				name := "factory1"
-				Expect(Register(factory, name)).To(Succeed())
-				_, ok := LookUp(name)
-				Expect(ok).To(BeTrue())
-				// Deregister it to avoid conflicts with other tests.
-				Deregister(name)
-			})
-		})
-		Context("When a given service doesn't exist", func() {
-			It("Returns the nil and false", func() {
-				_, ok := LookUp("inexistent")
-				Expect(ok).To(BeFalse())
-			})
-		})
-	})
-})
+func TestRegisterDup(t *testing.T) {
+	var factory runtimes.AdapterFactory
+	name := "factory1"
+
+	// When a factory's name is unique, there shouldn't be a problem.
+	err := runtimes.Register(factory, name)
+	// To avoid conflicts with other tests, deregister it.
+	defer runtimes.Deregister(name)
+	assert.NoError(t, err, "Unexpected error: %v", err)
+	// When a factory's name is a duplicate, client should get an error.
+	err = runtimes.Register(factory, name)
+	assert.NotNil(t, err, "err shouldn't be nil when registering a duplicate factory.")
+}
+
+func TestDeregisterExistent(t *testing.T) {
+	var factory runtimes.AdapterFactory
+	name := "factory1"
+
+	// The factory's name is unique, there shouldn't be a problem.
+	err := runtimes.Register(factory, name)
+	assert.NoError(t, err, "Unexpected error: %v", err)
+	assert.True(t, runtimes.Deregister(name), "Deregister shouldn't return false if the factory existed.")
+}
+
+func TestDeregisterInexistent(t *testing.T) {
+	name := "factory1"
+	assert.False(t, runtimes.Deregister(name), "Deregister should return false if the factory deidn't exist.")
+}
+
+func TestLookUpExistent(t *testing.T) {
+	var factory runtimes.AdapterFactory
+	name := "factory1"
+
+	// The factory's name is unique, there shouldn't be a problem.
+	err := runtimes.Register(factory, name)
+	defer runtimes.Deregister(name)
+	assert.NoError(t, err, "Unexpected error: %v", err)
+	_, ok := runtimes.LookUp(name)
+	assert.True(t, ok, "ok should be true when a factory exists.")
+}
+
+func TestLookUpInexistent(t *testing.T) {
+	_, ok := runtimes.LookUp("inexistent")
+	assert.False(t, ok, "ok should be false when a factory doesn't exist.")
+}

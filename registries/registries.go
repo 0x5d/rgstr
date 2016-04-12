@@ -15,6 +15,7 @@ type AdapterFactory interface {
 type RegistryAdapter interface {
 	Register(service *Service) error
 	Deregister(service *Service) error
+	Services() ([]*Service, error)
 }
 
 // Service represents a service.
@@ -22,7 +23,7 @@ type Service struct {
 	ID   string
 	Name string
 	IP   string
-	Port int
+	Port uint
 }
 
 // Register registers an AdapterFactory for use.

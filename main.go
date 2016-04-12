@@ -17,7 +17,8 @@ import (
 func main() {
 	runtimeAddr := flag.String("a", "localhost:15441", "The `address` where rkt's API service is listening.")
 	registryAddr := flag.String("ra", "localhost:8500", "The `registry address`.")
-	registryName := flag.String("rn", "consul", "The `registry name`.")
+	registryName := flag.String("registry", "consul", "The `registry`. rgstr currently supports Consul.")
+	runtimeName := flag.String("runtime", "rkt", "The `runtime`. rgstr currently supports rkt.")
 	flag.Parse()
 
 	registryFactory, ok := registries.LookUp(*registryName)
@@ -31,13 +32,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	runtimeName := "rkt"
-	runtimeFactory, ok := runtimes.LookUp(runtimeName)
+	runtimeFactory, ok := runtimes.LookUp(*runtimeName)
 	if !ok {
-		fmt.Printf("No runtime with name \"%s\" found.\n", runtimeName)
+		fmt.Printf("No runtime with name \"%s\" found.\n", *runtimeName)
 		os.Exit(1)
 	}
-	runtime, err := runtimeFactory.New(*runtimeAddr, &registry)
+	runtime, err := runtimeFactory.New(*runtimeAddr, registry)
 	if err != nil {
 		fmt.Printf("Error initializing runtime client for \"%s\": %s", runtime, err.Error())
 		os.Exit(1)
@@ -45,6 +45,6 @@ func main() {
 
 	errs := make(chan error)
 	go runtime.Listen(errs)
-	fmt.Printf("rgstr is listening for changes in %s...\n", runtimeName)
+	fmt.Printf("rgstr is listening for changes in %s...\n", *runtimeName)
 	log.Fatal(<-errs)
 }
