@@ -1,5 +1,12 @@
 [![Build Status](https://travis-ci.org/castillobg/rgstr.svg?branch=master)](https://travis-ci.org/castillobg/rgstr)
 
+## **This project is not abandoned! :)**
+I'm just 1 month away from graduating, so things are intense. If you'd like to contribute, check the issues!
+
+You can also contact me on twitter [@castillobgr](https://twitter.com/castillobgr).
+
+\- David Castillo
+
 # rgstr
 **rgstr** (_rĕjˈĭ-stər_) automatically registers and de-registers `rkt`
 (_rŏkˈĭt_) pods on [Consul](https://www.consul.io/), [etcd](https://coreos.com/etcd/).
