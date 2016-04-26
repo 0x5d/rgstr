@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/castillobg/rgstr.png?label=ready&title=Ready)](https://waffle.io/castillobg/rgstr)
 [![Build Status](https://travis-ci.org/castillobg/rgstr.svg?branch=master)](https://travis-ci.org/castillobg/rgstr)
 
 ## **This project is not abandoned! :)**
