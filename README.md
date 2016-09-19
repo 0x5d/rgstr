@@ -1,5 +1,5 @@
-[![Stories in Ready](https://badge.waffle.io/castillobg/rgstr.png?label=ready&title=Ready)](https://waffle.io/castillobg/rgstr)
-[![Build Status](https://travis-ci.org/castillobg/rgstr.svg?branch=master)](https://travis-ci.org/castillobg/rgstr)
+[![Build Status](https://travis-ci.org/castillobgr/rgstr.svg?branch=master)](https://travis-ci.org/castillobgr/rgstr)
+[![Stories in Ready](https://badge.waffle.io/castillobg/rgstr.png?label=ready&title=Ready)](https://waffle.io/castillobgr/rgstr)
 
 ## **This project is not abandoned! :)**
 I'm just 1 month away from graduating, so things are intense. If you'd like to contribute, check the issues!
